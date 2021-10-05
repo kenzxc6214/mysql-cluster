@@ -1,0 +1,9 @@
+[mysqld]
+skip-host-cache
+skip-name-resolve
+
+server-id=1
+log-bin=mysql-bin
+binlog-ignore-db=mysql
+# binlog-do-db
+# binlog_format=mixed

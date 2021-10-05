@@ -1,0 +1,58 @@
+version: '3'
+
+networks:
+  mysql-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.101.101.0/24
+
+services:
+
+  mysql-master:
+    image: mysql:5.7
+    container_name: mysql-master
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=my_database
+      - MYSQL_USER=my_database
+      - MYSQL_PASSWORD=123456
+    # ports:
+    #   - "3306:3306"
+    volumes:
+     - "./master/conf.d:/etc/mysql/conf.d"
+    #  - "../master/data:/var/lib/mysql"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      mysql-net:
+        ipv4_address: 172.101.101.101
+
+  mysql-slave:
+    image: mysql:5.7
+    container_name: mysql-slave
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    # ports:
+    #   - "3306:3306"
+    volumes:
+    - "./slave/conf.d:/etc/mysql/conf.d"
+    #  - "../slave/data:/var/lib/mysql"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      mysql-net:
+        ipv4_address: 172.101.101.102
+    depends_on:
+      - mysql-master
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      mysql-net:
+        ipv4_address: 172.101.101.103
+    
